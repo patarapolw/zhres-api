@@ -132,4 +132,6 @@ dmypy.json
 .idea/
 *.lock
 
+.DS_Store
+
 *.xlsx

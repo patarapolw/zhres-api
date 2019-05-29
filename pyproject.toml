@@ -13,6 +13,7 @@ jieba = "^0.39.0"
 pylint = "^2.3"
 flask-cors = "^3.0"
 gunicorn = "^19.9"
+gtts = "^2.0"
 
 [tool.poetry.dev-dependencies]
 requests = "^2.22"
