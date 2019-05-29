@@ -17,7 +17,7 @@ Example request
 }
 ```
 
-Example response
+Example response (result is sorted by word frequency)
 
 ```json
 {
