@@ -230,7 +230,7 @@ Example response
 ## GET `/api/tts/`
 
 - Example query string: `?q=你好`
-- The language can also be set differently, e.g. `zh-tw`.
+- The language can also be set differently, e.g. `lang=zh-tw`.
 - This is based on <https://pypi.org/project/gTTS/>
 - Supported languages:
 
