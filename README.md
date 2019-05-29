@@ -11,7 +11,9 @@ Example request
 
 ```json
 {
-	"entry": "好"
+    "entry": "好",
+    // "offset": 0
+    // "limit": 10
 }
 ```
 
@@ -95,7 +97,9 @@ Example request
 
 ```json
 {
-	"entry": "好"
+    "entry": "好",
+    // "offset": 0,
+    // "limit": 10
 }
 ```
 
