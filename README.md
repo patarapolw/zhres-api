@@ -9,7 +9,7 @@
 
 Example request
 
-```json
+```js
 {
     "entry": "好",
     // "offset": 0
@@ -19,7 +19,7 @@ Example request
 
 Example response (result is sorted by word frequency)
 
-```json
+```js
 {
     "count": 280,
     "limit": 10,
@@ -62,7 +62,7 @@ Example response (result is sorted by word frequency)
 
 Example request
 
-```json
+```js
 {
 	"entry": "好"
 }
@@ -70,7 +70,7 @@ Example request
 
 Example response
 
-```json
+```js
 {
     "result": [
         {
@@ -95,7 +95,7 @@ Example response
 
 Example request
 
-```json
+```js
 {
     "entry": "好",
     // "offset": 0,
@@ -105,7 +105,7 @@ Example request
 
 Example response
 
-```json
+```js
 {
     "count": 1900,
     "limit": 10,
@@ -132,7 +132,7 @@ Example response
 
 Example request
 
-```json
+```js
 {
 	"entry": "好"
 }
@@ -140,7 +140,7 @@ Example request
 
 Example response
 
-```json
+```js
 {
     "entry": "好",
     "frequency": 1620,
@@ -157,7 +157,7 @@ Example response
 
 Example request
 
-```json
+```js
 {
 	"entry": "好"
 }
@@ -165,7 +165,7 @@ Example request
 
 Example response
 
-```json
+```js
 {
     "frequency": 1620
 }
@@ -175,7 +175,7 @@ Example response
 
 Example request
 
-```json
+```js
 {
 	"entry": "我不知道應該說什麼才好。"
 }
@@ -183,7 +183,7 @@ Example request
 
 Example response
 
-```json
+```js
 {
     "result": [
         "我",
@@ -203,7 +203,7 @@ Example response
 
 Example request
 
-```json
+```js
 {
 	"entry": "我不知道應該說什麼才好。"
 }
@@ -211,7 +211,7 @@ Example request
 
 Example response
 
-```json
+```js
 {
     "result": [
         "我",
