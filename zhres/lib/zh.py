@@ -2,7 +2,7 @@ import sqlite3
 from wordfreq import word_frequency
 import jieba
 import pinyin
-from hyperpython import h
+from dominate.tags import ruby, rp, rt
 import regex
 
 zh = sqlite3.connect("asset/zh.db", check_same_thread=False)
@@ -56,11 +56,11 @@ def ruby_ify(entry: str):
     for seg in jieba.cut(entry):
         if regex.search("\\p{IsHan}", seg):
             p = pinyin.get(seg)
-            yield h("ruby", [
-                seg,
-                h("rp", "("),
-                h("rt", p),
-                h("rp", ")")
-            ])
+            r = ruby()
+            r += seg
+            r += rp("(")
+            r += rt(p)
+            r += rp(")")
+            yield r
         else:
             yield seg

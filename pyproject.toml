@@ -14,8 +14,8 @@ pylint = "^2.3"
 flask-cors = "^3.0"
 gunicorn = "^19.9"
 gtts = "^2.0"
-hyperpython = "^1.1"
 pinyin = "^0.4.0"
+dominate = "^2.3"
 
 [tool.poetry.dev-dependencies]
 requests = "^2.22"

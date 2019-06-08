@@ -1,7 +1,7 @@
 from wordfreq import word_frequency
 import jieba
 import pinyin
-from hyperpython import h
+from dominate.tags import span
 
 from flask import request, jsonify, Blueprint
 
@@ -51,5 +51,5 @@ def r_pinyin_ruby():
     entry = request.json["entry"]
 
     return jsonify({
-        "result": str(h("span", list(ruby_ify(entry))))
+        "result": str(span(list(ruby_ify(entry))))
     })
