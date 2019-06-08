@@ -4,6 +4,7 @@ from ..lib.zh import vocab, vocab_match, sentence, radical
 
 api_zh = Blueprint("zh", __name__, url_prefix="/api/zh")
 
+
 @api_zh.route("/vocab", methods=["POST"])
 def r_vocab():
     entry = request.json["entry"]
@@ -18,6 +19,7 @@ def r_vocab():
         "limit": limit
     })
 
+
 @api_zh.route("/vocab/match", methods=["POST"])
 def r_vocab_match():
     entry = request.json["entry"]
@@ -26,6 +28,7 @@ def r_vocab_match():
     return jsonify({
         "result": result
     })
+
 
 @api_zh.route("/sentence", methods=["POST"])
 def r_sentence():
@@ -40,6 +43,7 @@ def r_sentence():
         "offset": offset,
         "limit": limit
     })
+
 
 @api_zh.route("/radical", methods=["POST"])
 def r_radical():
