@@ -52,15 +52,9 @@ def radical(entry: str):
     return dict(c.fetchone())
 
 
-def ruby_ify(entry: str):
+def ruby_ify(entry: str, pinyin_delimiter: str = " "):
     for seg in jieba.cut(entry):
         if regex.search("\\p{IsHan}", seg):
-            p = pinyin.get(seg)
-            r = ruby()
-            r += seg
-            r += rp("(")
-            r += rt(p)
-            r += rp(")")
-            yield r
+            yield ruby([seg, rp("("), rt(pinyin.get(seg, delimiter=pinyin_delimiter)), rp(")")])
         else:
             yield seg

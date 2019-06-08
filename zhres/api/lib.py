@@ -51,5 +51,5 @@ def r_pinyin_ruby():
     entry = request.json["entry"]
 
     return jsonify({
-        "result": str(span(list(ruby_ify(entry))))
+        "result": span(list(ruby_ify(entry))).render(pretty=False)
     })
