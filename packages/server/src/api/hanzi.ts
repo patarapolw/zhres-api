@@ -1,5 +1,8 @@
+import fs from 'fs'
+
 import { FastifyInstance } from 'fastify'
 import sqlite3 from 'better-sqlite3'
+import yaml from 'js-yaml'
 
 export default (f: FastifyInstance, _: any, next: () => void) => {
   const zh = sqlite3('assets/zh.db', { readonly: true })
@@ -11,6 +14,7 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
     ORDER BY frequency DESC
     `)
   }
+  const hsk = yaml.safeLoad(fs.readFileSync('assets/hsk.yaml', 'utf8')) as Record<string, string[]>
 
   f.post('/match', {
     schema: {
@@ -44,6 +48,54 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
 
     return {
       result: stmt.hanziMatch.get(entry)
+    }
+  })
+
+  f.post('/random', {
+    schema: {
+      tags: ['hanzi'],
+      summary: 'Randomize a Hanzi for a given level',
+      body: {
+        type: 'object',
+        properties: {
+          level: { type: 'integer' }
+        }
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            result: { type: 'string' },
+            level: { type: 'integer' }
+          }
+        }
+      }
+    }
+  }, async (req) => {
+    const { level } = req.body
+
+    const hsMap = new Map<string, number>()
+
+    Object.entries(hsk)
+      .map(([lv, vs]) => ({ lv: parseInt(lv), vs }))
+      .filter(({ lv }) => lv <= level)
+      .map(({ lv, vs }) => {
+        vs.map(v => {
+          v.split('').map(h => {
+            const hLevel = hsMap.get(h)
+            if (!hLevel || hLevel > lv) {
+              hsMap.set(h, lv)
+            }
+          })
+        })
+      })
+
+    const hs = Array.from(hsMap)
+    const [h, lv] = hs[Math.floor(Math.random() * hs.length)] || []
+
+    return {
+      result: h,
+      level: lv
     }
   })
 

@@ -20,7 +20,12 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
     SELECT COUNT(*) AS [count]
     FROM sentence
     WHERE chinese LIKE ?
-    `)
+    `),
+    sentenceLevel: zh.prepare(/*sql*/`
+    SELECT chinese, [level]
+    FROM sentence
+    WHERE [level] <= ?
+    ORDER BY RANDOM()`)
   }
 
   f.post('/q', {
@@ -69,6 +74,37 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
       count: (stmt.sentenceQCount.get(`%${entry}%`) || {}).count || 0,
       offset,
       limit
+    }
+  })
+
+  f.post('/random', {
+    schema: {
+      tags: ['sentence'],
+      summary: 'Randomize a sentence for a given level',
+      body: {
+        type: 'object',
+        properties: {
+          level: { type: 'integer' }
+        }
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            result: { type: 'string' },
+            level: { type: 'integer' }
+          }
+        }
+      }
+    }
+  }, async (req) => {
+    const { level } = req.body
+
+    const s = stmt.sentenceLevel.get(level) || {} as any
+
+    return {
+      result: s.chinese,
+      level: s.level
     }
   })
 

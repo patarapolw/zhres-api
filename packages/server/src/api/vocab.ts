@@ -1,5 +1,8 @@
+import fs from 'fs'
+
 import { FastifyInstance } from 'fastify'
 import sqlite3 from 'better-sqlite3'
+import yaml from 'js-yaml'
 
 export default (f: FastifyInstance, _: any, next: () => void) => {
   const zh = sqlite3('assets/zh.db', { readonly: true })
@@ -35,6 +38,7 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
       traditional LIKE ?
     `)
   }
+  const hsk = yaml.safeLoad(fs.readFileSync('assets/hsk.yaml', 'utf8')) as Record<string, string[]>
 
   f.post('/q', {
     schema: {
@@ -123,6 +127,45 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
 
     return {
       result: stmt.vocabMatch.all(entry, entry)
+    }
+  })
+
+  f.post('/random', {
+    schema: {
+      tags: ['vocab'],
+      summary: 'Randomize a vocab for a given level',
+      body: {
+        type: 'object',
+        properties: {
+          level: { type: 'integer' }
+        }
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            result: { type: 'string' },
+            level: { type: 'integer' }
+          }
+        }
+      }
+    }
+  }, async (req) => {
+    const { level } = req.body
+
+    const vs = Object.entries(hsk)
+      .map(([lv, vs]) => ({ lv: parseInt(lv), vs }))
+      .filter(({ lv }) => lv <= level)
+      .reduce((prev, { lv, vs }) => [...prev, ...vs.map(v => ({ v, lv }))], [] as {
+        v: string
+        lv: number
+      }[])
+
+    const v = vs[Math.floor(Math.random() * vs.length)] || {} as any
+
+    return {
+      result: v.v,
+      level: v.lv
     }
   })
 
