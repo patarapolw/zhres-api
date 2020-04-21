@@ -155,7 +155,7 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
 
     const vs = Object.entries(hsk)
       .map(([lv, vs]) => ({ lv: parseInt(lv), vs }))
-      .filter(({ lv }) => lv <= level)
+      .filter(({ lv }) => level ? lv <= level : true)
       .reduce((prev, { lv, vs }) => [...prev, ...vs.map(v => ({ v, lv }))], [] as {
         v: string
         lv: number

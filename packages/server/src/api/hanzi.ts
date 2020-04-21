@@ -78,7 +78,7 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
 
     Object.entries(hsk)
       .map(([lv, vs]) => ({ lv: parseInt(lv), vs }))
-      .filter(({ lv }) => lv <= level)
+      .filter(({ lv }) => level ? lv <= level : true)
       .map(({ lv, vs }) => {
         vs.map(v => {
           v.split('').map(h => {

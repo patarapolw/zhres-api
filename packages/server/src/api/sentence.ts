@@ -25,6 +25,11 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
     SELECT chinese, [level]
     FROM sentence
     WHERE [level] <= ?
+    ORDER BY RANDOM()`),
+    sentenceLevelDefined: zh.prepare(/*sql*/`
+    SELECT chinese, [level]
+    FROM sentence
+    WHERE [level] IS NOT NULL
     ORDER BY RANDOM()`)
   }
 
@@ -100,7 +105,9 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
   }, async (req) => {
     const { level } = req.body
 
-    const s = stmt.sentenceLevel.get(level) || {} as any
+    const s = level
+      ? (stmt.sentenceLevel.get(level) || {} as any)
+      : (stmt.sentenceLevelDefined.get())
 
     return {
       result: s.chinese,
