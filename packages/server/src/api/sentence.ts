@@ -24,12 +24,7 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
     sentenceLevel: zh.prepare(/*sql*/`
     SELECT chinese, [level]
     FROM sentence
-    WHERE [level] <= ?
-    ORDER BY RANDOM()`),
-    sentenceLevelDefined: zh.prepare(/*sql*/`
-    SELECT chinese, [level]
-    FROM sentence
-    WHERE [level] IS NOT NULL
+    WHERE [level] <= ? AND [level] >= ?
     ORDER BY RANDOM()`)
   }
 
@@ -89,7 +84,8 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
       body: {
         type: 'object',
         properties: {
-          level: { type: 'integer' }
+          level: { type: 'integer' },
+          levelMin: { type: 'integer' }
         }
       },
       response: {
@@ -103,11 +99,8 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
       }
     }
   }, async (req) => {
-    const { level } = req.body
-
-    const s = level
-      ? (stmt.sentenceLevel.get(level) || {} as any)
-      : (stmt.sentenceLevelDefined.get())
+    const { levelMin, level } = req.body
+    const s = stmt.sentenceLevel.get(level || 60, levelMin || 1) || {} as any
 
     return {
       result: s.chinese,

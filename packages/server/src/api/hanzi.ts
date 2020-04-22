@@ -58,6 +58,7 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
       body: {
         type: 'object',
         properties: {
+          levelMin: { type: 'integer' },
           level: { type: 'integer' }
         }
       },
@@ -72,13 +73,14 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
       }
     }
   }, async (req) => {
-    const { level } = req.body
+    const { levelMin, level } = req.body
 
     const hsMap = new Map<string, number>()
 
     Object.entries(hsk)
       .map(([lv, vs]) => ({ lv: parseInt(lv), vs }))
       .filter(({ lv }) => level ? lv <= level : true)
+      .filter(({ lv }) => levelMin ? lv >= levelMin : true)
       .map(({ lv, vs }) => {
         vs.map(v => {
           v.split('').map(h => {
