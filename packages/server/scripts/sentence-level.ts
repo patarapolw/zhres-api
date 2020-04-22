@@ -17,12 +17,23 @@ function main () {
     })
   })
 
+  const tradMap = new Map<string, string>()
+
+  sql.prepare(/*sql*/`
+  SELECT simplified, traditional
+  FROM vocab
+  WHERE traditional IS NOT NULL`).all().map((el) => {
+    tradMap.set(el.traditional, el.simplified)
+  })
+
   sql.prepare(/*sql*/`
   SELECT id, chinese
   FROM sentence`).all().map((el) => {
     const level = Math.max(
       0,
-      ...jieba.cut(el.chinese).map((seg) => lvMap.get(seg)).filter((el) => el) as number[]
+      ...jieba.cut(el.chinese).map((seg) => {
+        return lvMap.get(seg) || lvMap.get(tradMap.get(seg) || '')
+      }).filter((el) => el) as number[]
     )
 
     sql.prepare(/*sql*/`
