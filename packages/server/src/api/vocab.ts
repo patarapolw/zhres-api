@@ -171,5 +171,23 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
     }
   })
 
+  f.post('/all', {
+    schema: {
+      tags: ['vocab'],
+      summary: 'Get all leveled vocabs',
+      response: {
+        200: {
+          type: 'object',
+          additionalProperties: {
+            type: 'array',
+            items: { type: 'string' }
+          }
+        }
+      }
+    }
+  }, async () => {
+    return hsk
+  })
+
   next()
 }
