@@ -1,0 +1,3 @@
+- `junda.db` is from https://lingua.mtsu.edu/chinese-computing/
+- `radical.db` is from https://github.com/cjkvi/cjkvi-ids
+- `level/*.yaml` is from https://github.com/zhquiz/zhlevel
