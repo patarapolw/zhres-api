@@ -1,6 +1,0 @@
-*.*
-!*.ts
-!*.js
-!*.vue
-node_modules
-dist

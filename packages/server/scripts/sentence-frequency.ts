@@ -1,7 +1,7 @@
-import jieba from 'nodejieba'
 import Sqlite3 from 'better-sqlite3'
+import jieba from 'nodejieba'
 
-function main () {
+function main() {
   const sql = new Sqlite3('assets/zh.db')
 
   const fMap = new Map<string, number>()
