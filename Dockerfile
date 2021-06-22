@@ -1,9 +1,10 @@
-FROM node:14-alpine
+FROM node:14
 
 RUN mkdir -p /server
 WORKDIR /server
 
-RUN apk add python alpine-sdk jq
+RUN apt-get update
+RUN apt-get install -y jq
 
 COPY packages/server/package.json packages/server/yarn.lock /server/
 RUN yarn --frozen-lockfile
@@ -13,7 +14,7 @@ RUN yarn build
 RUN jq 'del(.devDependencies)' package.json > tmp.json && mv tmp.json package.json
 RUN yarn --frozen-lockfile
 
-RUN apk del python alpine-sdk jq
+RUN apt-get remove -y jq
 
 EXPOSE 8080
 CMD [ "yarn", "start" ]

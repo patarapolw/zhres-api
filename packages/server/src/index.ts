@@ -28,6 +28,10 @@ app.addHook('preHandler', async (req, reply) => {
   }
 })
 
+app.get('/', (_, reply) => {
+  reply.redirect('/api/doc')
+})
+
 app.listen(
   PORT,
   process.env.NODE_ENV === 'development' ? 'localhost' : '0.0.0.0',
@@ -35,7 +39,5 @@ app.listen(
     if (err) {
       throw err
     }
-
-    console.log(`Go to http://localhost:${PORT}`)
   }
 )

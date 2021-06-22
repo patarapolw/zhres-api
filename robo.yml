@@ -1,9 +1,13 @@
 build:
   command: |
-    docker build -t zhres .
+    docker-compose build
 start:
   command: |
-    docker run -p 8080:8080 zhres
-heroku-deploy:
+    export PORT=8080
+    echo "Go to http://localhost:$PORT"
+    docker-compose up
+api:
   command: |
-    heroku container:push web
+    export PORT=26670
+    echo "Go to http://localhost:$PORT"
+    docker-compose up
