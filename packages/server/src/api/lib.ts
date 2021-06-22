@@ -8,11 +8,30 @@ const libRouter: FastifyPluginAsync = async (f) => {
 
   {
     const sBody = S.shape({
-      entry: S.string()
+      entry: S.string(),
+      mode: S.string().enum('search').optional()
+    }).examples({
+      entry: '小明硕士毕业于中国科学院计算所，后在日本京都大学深造。'
     })
 
     const sResponse = S.shape({
       result: S.list(S.string())
+    }).examples({
+      "result": [
+        "小",
+        "明",
+        "硕士",
+        "毕业",
+        "于",
+        "中国科学院",
+        "计算所",
+        "，",
+        "后",
+        "在",
+        "日本京都大学",
+        "深造",
+        "。"
+      ]
     })
 
     f.post<{
@@ -27,10 +46,17 @@ const libRouter: FastifyPluginAsync = async (f) => {
         }
       }
     }, async (req): Promise<typeof sResponse.type> => {
-      const { entry } = req.body
+      const { entry, mode } = req.body
+
+      switch (mode) {
+        case 'search':
+          return {
+            result: jieba.cutForSearch(entry).filter((s) => /\p{sc=Han}/u.test(s)).filter((a, i, r) => r.indexOf(a) === i)
+          }
+      }
 
       return {
-        result: jieba.cutForSearch(entry)
+        result: jieba.cut(entry)
       }
     })
   }
@@ -38,10 +64,14 @@ const libRouter: FastifyPluginAsync = async (f) => {
   {
     const sBody = S.shape({
       entry: S.string()
+    }).examples({
+      entry: '你好'
     })
 
     const sResponse = S.shape({
       result: S.string()
+    }).examples({
+      result: 'ni3 hao3'
     })
 
     f.post<{

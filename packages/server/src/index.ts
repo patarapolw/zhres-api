@@ -1,4 +1,7 @@
+import path from 'path'
+
 import fastify from 'fastify'
+import fastifyStatic from 'fastify-static'
 
 import apiRouter from './api'
 import { PORT } from './shared'
@@ -28,8 +31,8 @@ app.addHook('preHandler', async (req, reply) => {
   }
 })
 
-app.get('/', (_, reply) => {
-  reply.redirect('/api/doc')
+app.register(fastifyStatic, {
+  root: path.resolve('./public')
 })
 
 app.listen(

@@ -13,29 +13,30 @@ const apiRouter: FastifyPluginAsync = async (f) => {
     routePrefix: '/doc',
     openapi: {
       info: {
-        title: 'Swagger API',
-        version: '0.1.0'
+        title: 'ZhRes API',
+        version: '0.2.0'
       },
       servers: [
         {
-          url: 'https://zhres.herokuapp.com',
-          description: 'Online server'
-        },
-        {
           url: `http://localhost:${PORT}`,
           description: 'Local server'
+        },
+        {
+          url: 'https://zhres.herokuapp.com',
+          description: 'Online server'
         }
       ]
     },
-    exposeRoute: true
+    exposeRoute: true,
+    hideUntagged: true
   })
 
   f.register(cors)
 
   f.register(libRouter, { prefix: '/lib' })
-  f.register(sentenceRouter, { prefix: '/sentence' })
-  f.register(vocabRouter, { prefix: '/vocab' })
   f.register(hanziRouter, { prefix: '/hanzi' })
+  f.register(vocabRouter, { prefix: '/vocab' })
+  f.register(sentenceRouter, { prefix: '/sentence' })
 }
 
 export default apiRouter
