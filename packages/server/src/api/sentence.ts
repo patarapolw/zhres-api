@@ -1,10 +1,13 @@
-import { FastifyInstance } from 'fastify'
 import sqlite3 from 'better-sqlite3'
+import { FastifyPluginAsync } from 'fastify'
+import S from 'jsonschema-definer'
 
-export default (f: FastifyInstance, _: any, next: () => void) => {
+const sentenceRouter: FastifyPluginAsync = async (f) => {
+  const tags = ['sentence']
+
   const zh = sqlite3('assets/zh.db', { readonly: true })
   const stmt = {
-    sentenceQ (opts: {
+    sentenceQ(opts: {
       limit: number
       offset: number
     }) {
@@ -28,85 +31,81 @@ export default (f: FastifyInstance, _: any, next: () => void) => {
     ORDER BY RANDOM()`)
   }
 
-  f.post('/q', {
-    schema: {
-      tags: ['sentence'],
-      summary: 'Query for a given sentence',
-      body: {
-        type: 'object',
-        required: ['entry'],
-        properties: {
-          entry: { type: 'string' },
-          offset: { type: 'integer' },
-          limit: { type: 'integer' }
-        }
-      },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            result: {
-              type: 'array',
-              items: {
-                type: 'object',
-                required: ['chinese', 'english'],
-                properties: {
-                  chinese: { type: 'string' },
-                  pinyin: { type: 'string' },
-                  english: { type: 'string' }
-                }
-              }
-            },
-            count: { type: 'integer' },
-            offset: { type: 'integer' },
-            limit: { type: 'integer' }
-          }
+  {
+    const sBody = S.shape({
+      entry: S.string(),
+      offset: S.integer().minimum(0).optional(),
+      limit: S.integer().minimum(1).optional()
+    })
+
+    const sResponse = S.shape({
+      result: S.list(S.shape({
+        chinese: S.string(),
+        pinyin: S.string().optional(),
+        english: S.string()
+      })),
+      count: S.integer()
+    })
+
+    f.post<{
+      Body: typeof sBody.type
+    }>('/q', {
+      schema: {
+        tags,
+        summary: 'Query for a given sentence',
+        body: sBody.valueOf(),
+        response: {
+          200: sResponse.valueOf()
         }
       }
-    }
-  }, async (req) => {
-    const { entry, offset = 0, limit = 10 } = req.body
+    }, async (req) => {
+      const { entry, offset = 0, limit = 10 } = req.body
 
-    return {
-      result: stmt.sentenceQ({
-        offset, limit
-      }).all(`%${entry}%`),
-      count: (stmt.sentenceQCount.get(`%${entry}%`) || {}).count || 0,
-      offset,
-      limit
-    }
-  })
+      return {
+        result: stmt.sentenceQ({
+          offset, limit
+        }).all(`%${entry}%`),
+        count: (stmt.sentenceQCount.get(`%${entry}%`) || {}).count || 0,
+      }
+    })
+  }
 
-  f.post('/random', {
-    schema: {
-      tags: ['sentence'],
-      summary: 'Randomize a sentence for a given level',
-      body: {
-        type: 'object',
-        properties: {
-          level: { type: 'integer' },
-          levelMin: { type: 'integer' }
-        }
-      },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            result: { type: 'string' },
-            level: { type: 'integer' }
-          }
+  {
+    const sLevel = S.integer().minimum(1).maximum(60)
+
+    const sBody = S.shape({
+      level: S.shape({
+        min: sLevel.optional(),
+        max: sLevel.optional()
+      }).optional()
+    })
+
+    const sResponse = S.shape({
+      result: S.string(),
+      level: sLevel
+    })
+
+    f.post<{
+      Body: typeof sBody.type
+    }>('/random', {
+      schema: {
+        tags,
+        summary: 'Randomize a sentence for a given level',
+        body: sBody.valueOf(),
+        response: {
+          200: sResponse.valueOf()
         }
       }
-    }
-  }, async (req) => {
-    const { levelMin, level } = req.body
-    const s = stmt.sentenceLevel.get(level || 60, levelMin || 1) || {} as any
+    }, async (req): Promise<typeof sResponse.type> => {
+      const { level: { min: levelMin, max: level } = {} } = req.body
+      const s = stmt.sentenceLevel.get(level || 60, levelMin || 1) || {} as any
 
-    return {
-      result: s.chinese,
-      level: s.level
-    }
-  })
-
-  next()
+      return {
+        result: s.chinese,
+        level: s.level
+      }
+    })
+  }
 }
+
+export default sentenceRouter

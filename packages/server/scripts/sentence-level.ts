@@ -4,9 +4,9 @@ import Sqlite3 from 'better-sqlite3'
 import yaml from 'js-yaml'
 import jieba from 'nodejieba'
 
-function main () {
+function main() {
   const sql = new Sqlite3('assets/zh.db')
-  const hsk = yaml.safeLoad(fs.readFileSync('assets/hsk.yaml', 'utf8')) as Record<string, string[]>
+  const hsk = yaml.load(fs.readFileSync('assets/hsk.yaml', 'utf8')) as Record<string, string[]>
 
   const lvMap = new Map<string, number>()
   Object.entries(hsk).map(([lv, vs]) => {

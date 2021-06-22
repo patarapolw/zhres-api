@@ -1,63 +1,68 @@
-import { FastifyInstance } from 'fastify'
+import toPinyin from 'chinese-to-pinyin'
+import { FastifyPluginAsync } from 'fastify'
+import S from 'jsonschema-definer'
 import jieba from 'nodejieba'
-import pinyin from 'chinese-to-pinyin'
 
-export default (f: FastifyInstance, _: any, next: () => void) => {
-  f.post('/jieba', {
-    schema: {
-      tags: ['lib'],
-      summary: 'Cut chinese text into segments',
-      body: {
-        type: 'object',
-        required: ['entry'],
-        properties: {
-          entry: { type: 'string' }
-        }
-      },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            result: { type: 'array', items: { type: 'string' } }
-          }
-        }
-      }
-    }
-  }, async (req) => {
-    const { entry } = req.body
+const libRouter: FastifyPluginAsync = async (f) => {
+  const tags = ['lib']
 
-    return {
-      result: jieba.cut(entry)
-    }
-  })
+  {
+    const sBody = S.shape({
+      entry: S.string()
+    })
 
-  f.post('/pinyin', {
-    schema: {
-      tags: ['lib'],
-      summary: 'Generate pinyin from Chinese text',
-      body: {
-        type: 'object',
-        required: ['entry'],
-        properties: {
-          entry: { type: 'string' }
-        }
-      },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            result: { type: 'string' }
-          }
+    const sResponse = S.shape({
+      result: S.list(S.string())
+    })
+
+    f.post<{
+      Body: typeof sBody.type
+    }>('/jieba', {
+      schema: {
+        tags,
+        summary: 'Cut chinese text into segments',
+        body: sBody.valueOf(),
+        response: {
+          200: sResponse.valueOf()
         }
       }
-    }
-  }, async (req) => {
-    const { entry } = req.body
+    }, async (req): Promise<typeof sResponse.type> => {
+      const { entry } = req.body
 
-    return {
-      result: pinyin(entry, { keepRest: true })
-    }
-  })
+      return {
+        result: jieba.cutForSearch(entry)
+      }
+    })
+  }
 
-  next()
+  {
+    const sBody = S.shape({
+      entry: S.string()
+    })
+
+    const sResponse = S.shape({
+      result: S.string()
+    })
+
+    f.post<{
+      Body: typeof sBody.type
+    }>('/pinyin', {
+      schema: {
+        tags,
+        summary: 'Generate pinyin from Chinese text',
+        body: sBody.valueOf(),
+        response: {
+          200: sResponse.valueOf()
+        }
+      }
+    }, async (req): Promise<typeof sResponse.type> => {
+      const { entry } = req.body
+
+      return {
+        result: toPinyin(entry, { keepRest: true, toneToNumber: true })
+      }
+    })
+  }
 }
+
+export default libRouter

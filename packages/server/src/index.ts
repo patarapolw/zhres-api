@@ -1,16 +1,16 @@
 import fastify from 'fastify'
 
 import apiRouter from './api'
+import { PORT } from './shared'
 
 const app = fastify({
   logger: true
 })
-const port = parseInt(process.env.PORT || '8080')
 
 app.register(apiRouter, { prefix: '/api' })
 
 app.addHook('preHandler', async (req, reply) => {
-  const isHttps = ((req.headers['x-forwarded-proto'] || '').substring(0, 5) === 'https')
+  const isHttps = ((req.headers['x-forwarded-proto'] as string || '').substring(0, 5) === 'https')
   if (isHttps) {
     return
   }
@@ -21,7 +21,7 @@ app.addHook('preHandler', async (req, reply) => {
     return
   }
 
-  const { method, url } = req.req
+  const { method, url } = req
 
   if (method && ['GET', 'HEAD'].includes(method)) {
     reply.redirect(301, `https://${host}${url}`)
@@ -29,13 +29,13 @@ app.addHook('preHandler', async (req, reply) => {
 })
 
 app.listen(
-  port,
+  PORT,
   process.env.NODE_ENV === 'development' ? 'localhost' : '0.0.0.0',
   (err) => {
     if (err) {
       throw err
     }
 
-    console.log(`Go to http://localhost:${port}`)
+    console.log(`Go to http://localhost:${PORT}`)
   }
 )

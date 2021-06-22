@@ -1,0 +1,9 @@
+build:
+  command: |
+    docker build -t zhres .
+start:
+  command: |
+    docker run -p 8080:8080 zhres
+heroku-deploy:
+  command: |
+    heroku container:push web
