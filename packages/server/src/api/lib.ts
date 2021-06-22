@@ -8,7 +8,8 @@ const libRouter: FastifyPluginAsync = async (f) => {
 
   {
     const sBody = S.shape({
-      entry: S.string()
+      entry: S.string(),
+      mode: S.string().enum('search').optional()
     })
 
     const sResponse = S.shape({
@@ -27,10 +28,17 @@ const libRouter: FastifyPluginAsync = async (f) => {
         }
       }
     }, async (req): Promise<typeof sResponse.type> => {
-      const { entry } = req.body
+      const { entry, mode } = req.body
+
+      switch (mode) {
+        case 'search':
+          return {
+            result: jieba.cutForSearch(entry).filter((s) => /\p{sc=Han}/u.test(s)).filter((a, i, r) => r.indexOf(a) === i)
+          }
+      }
 
       return {
-        result: jieba.cutForSearch(entry)
+        result: jieba.cut(entry)
       }
     })
   }

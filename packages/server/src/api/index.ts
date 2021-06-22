@@ -13,8 +13,8 @@ const apiRouter: FastifyPluginAsync = async (f) => {
     routePrefix: '/doc',
     openapi: {
       info: {
-        title: 'Swagger API',
-        version: '0.1.0'
+        title: 'ZhRes API',
+        version: '0.2.0'
       },
       servers: [
         {

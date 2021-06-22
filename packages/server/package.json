@@ -6,8 +6,10 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "ts-node-dev src/index.ts",
-    "build": "tsc -P src/tsconfig.json"
+    "dev": "ts-node-dev -P src/tsconfig.json src/index.ts",
+    "generate": "PYTHONPATH=${PYTHONPATH:-$PWD/.venv/bin/python} ts-node scripts/generate.ts",
+    "build": "tsc -P src/tsconfig.json",
+    "openapi": "wget -O generated/openapi.json http://localhost:8080/api/doc/json"
   },
   "keywords": [
     "zhres",

@@ -1,23 +1,27 @@
-import fs from 'fs'
-
-import sqlite3 from 'better-sqlite3'
 import { FastifyPluginAsync } from 'fastify'
-import yaml from 'js-yaml'
 import S from 'jsonschema-definer'
+
+import { db } from './shared'
 
 const hanziRouter: FastifyPluginAsync = async (f) => {
   const tags = ['hanzi']
 
-  const zh = sqlite3('assets/zh.db', { readonly: true })
   const stmt = {
-    hanziMatch: zh.prepare(/*sql*/`
-    SELECT sub, sup, [var] FROM token 
-    WHERE
-      [entry] = ?
-    ORDER BY frequency DESC
+    radical: db.radical.prepare(/*sql*/`
+    SELECT sub, sup, [var] FROM radical 
+    WHERE [entry] = @entry
+    `),
+    match: db.junda.prepare(/*sql*/`
+    SELECT [character] [entry], pinyin reading, english FROM hanzi 
+    WHERE [entry] = @entry
+    `),
+    random: db.level.prepare(/*sql*/`
+    SELECT [entry] result, hanzi [level] FROM [level] 
+    WHERE hanzi >= @min AND hanzi <= @max
+    ORDER BY RANDOM()
+    LIMIT 1
     `)
   }
-  const hsk = yaml.load(fs.readFileSync('assets/hsk.yaml', 'utf8')) as Record<string, string[]>
 
   {
     const sBody = S.shape({
@@ -32,7 +36,7 @@ const hanziRouter: FastifyPluginAsync = async (f) => {
 
     f.post<{
       Body: typeof sBody.type
-    }>('/match', {
+    }>('/radical', {
       schema: {
         tags,
         summary: 'Get data for a given Hanzi',
@@ -43,13 +47,55 @@ const hanziRouter: FastifyPluginAsync = async (f) => {
       }
     }, async (req): Promise<typeof sResponse.type> => {
       const { entry } = req.body
-      const r = stmt.hanziMatch.get(entry) || {}
-      const regex = /\p{sc=Han}/gu
+      const r = stmt.radical.get({ entry })
+
+      if (!r) {
+        throw { statusCode: 404 }
+      }
 
       return {
-        sub: (r.sub as string || '').match(regex) || [],
-        sup: (r.sup as string || '').match(regex) || [],
-        var: (r.var as string || '').match(regex) || []
+        sub: JSON.parse(r.sub),
+        sup: JSON.parse(r.sup),
+        var: JSON.parse(r.var)
+      }
+    })
+  }
+
+  {
+    const sBody = S.shape({
+      entry: S.string()
+    })
+
+    const sResponse = S.shape({
+      result: S.list(S.shape({
+        entry: S.string(),
+        reading: S.list(S.string()),
+        english: S.list(S.string())
+      }))
+    })
+
+    f.post<{
+      Body: typeof sBody.type
+    }>('/match', {
+      schema: {
+        tags,
+        summary: 'Get translation for a given hanzi',
+        body: sBody.valueOf(),
+        response: {
+          200: sResponse.valueOf()
+        }
+      }
+    }, async (req): Promise<typeof sResponse.type> => {
+      const { entry } = req.body
+
+      const rs = stmt.match.all({ entry })
+
+      return {
+        result: rs.map(({ entry, reading, english }) => ({
+          entry,
+          reading: reading ? reading.split('/') : [],
+          english: english ? english.split('/') : []
+        }))
       }
     })
   }
@@ -59,9 +105,14 @@ const hanziRouter: FastifyPluginAsync = async (f) => {
 
     const sBody = S.shape({
       level: S.shape({
-        min: sLevel.optional(),
-        max: sLevel.optional()
+        min: sLevel.optional().examples(1),
+        max: sLevel.optional().examples(60)
       }).optional()
+    }).examples({
+      level: {
+        min: 1,
+        max: 10
+      }
     })
 
     const sResponse = S.shape({
@@ -81,32 +132,14 @@ const hanziRouter: FastifyPluginAsync = async (f) => {
         }
       }
     }, async (req): Promise<typeof sResponse.type> => {
-      const { level: { min: levelMin, max: level } = {} } = req.body
+      const { level: { min = 1, max = 60 } = {} } = req.body
+      const r = stmt.random.get({ min, max })
 
-      const hsMap = new Map<string, number>()
-
-      Object.entries(hsk)
-        .map(([lv, vs]) => ({ lv: parseInt(lv), vs }))
-        .filter(({ lv }) => level ? lv <= level : true)
-        .filter(({ lv }) => levelMin ? lv >= levelMin : true)
-        .map(({ lv, vs }) => {
-          vs.map(v => {
-            v.split('').map(h => {
-              const hLevel = hsMap.get(h)
-              if (!hLevel || hLevel > lv) {
-                hsMap.set(h, lv)
-              }
-            })
-          })
-        })
-
-      const hs = Array.from(hsMap)
-      const [h, lv] = hs[Math.floor(Math.random() * hs.length)] || []
-
-      return {
-        result: h,
-        level: lv
+      if (!r) {
+        throw { statusCode: 404 }
       }
+
+      return r
     })
   }
 }
