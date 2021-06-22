@@ -18,24 +18,25 @@ const apiRouter: FastifyPluginAsync = async (f) => {
       },
       servers: [
         {
-          url: 'https://zhres.herokuapp.com',
-          description: 'Online server'
-        },
-        {
           url: `http://localhost:${PORT}`,
           description: 'Local server'
+        },
+        {
+          url: 'https://zhres.herokuapp.com',
+          description: 'Online server'
         }
       ]
     },
-    exposeRoute: true
+    exposeRoute: true,
+    hideUntagged: true
   })
 
   f.register(cors)
 
   f.register(libRouter, { prefix: '/lib' })
-  f.register(sentenceRouter, { prefix: '/sentence' })
-  f.register(vocabRouter, { prefix: '/vocab' })
   f.register(hanziRouter, { prefix: '/hanzi' })
+  f.register(vocabRouter, { prefix: '/vocab' })
+  f.register(sentenceRouter, { prefix: '/sentence' })
 }
 
 export default apiRouter

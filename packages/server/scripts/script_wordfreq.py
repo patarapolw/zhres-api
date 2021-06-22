@@ -3,7 +3,8 @@ from wordfreq import word_frequency
 import json
 
 for line in sys.stdin:
+  c = json.loads(line.strip())
   print(json.dumps({
-    "c": line,
-    "f": word_frequency(line, "zh") * 10 ** 6
+    "c": c,
+    "f": word_frequency(c, "zh") * 10 ** 6
   }))

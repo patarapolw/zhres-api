@@ -39,7 +39,7 @@ const sentenceRouter: FastifyPluginAsync = async (f) => {
       offset: S.integer().minimum(0).optional(),
       limit: S.integer().minimum(1).optional()
     }).examples({
-      q: 'string'
+      q: '你好'
     })
 
     const sResponse = S.shape({
@@ -48,6 +48,50 @@ const sentenceRouter: FastifyPluginAsync = async (f) => {
         eng: S.string()
       })),
       count: S.integer()
+    }).examples({
+      "result": [
+        {
+          "cmn": "你好，我是胡安。",
+          "eng": "Hello, I'm Huan."
+        },
+        {
+          "cmn": "你好！",
+          "eng": "Hello!"
+        },
+        {
+          "cmn": "我会帮助你好好学习法文。",
+          "eng": "I want to help you to study French."
+        },
+        {
+          "cmn": "你好，你是何塞嗎？",
+          "eng": "Hello, are you Jose?"
+        },
+        {
+          "cmn": "你好！明惠。",
+          "eng": "Hello! Minghui."
+        },
+        {
+          "cmn": "你好，我叫 Nancy。",
+          "eng": "Hello, I am Nancy."
+        },
+        {
+          "cmn": "你好，我都快饿死了！",
+          "eng": "Hello, I'm so hungry!"
+        },
+        {
+          "cmn": "你好！我是胡安。",
+          "eng": "Hello! I'm Huan."
+        },
+        {
+          "cmn": "你好！我叫汤姆。你叫什么？",
+          "eng": "Hi, my name is Tom. What is yours?"
+        },
+        {
+          "cmn": "祝你好运。",
+          "eng": "Good luck."
+        }
+      ],
+      "count": 46
     })
 
     f.post<{
@@ -92,6 +136,9 @@ const sentenceRouter: FastifyPluginAsync = async (f) => {
     const sResponse = S.shape({
       result: S.string(),
       level: sLevel
+    }).examples({
+      "result": "新的學期開始了。",
+      "level": 6
     })
 
     f.post<{

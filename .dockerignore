@@ -2,6 +2,7 @@
 
 !/packages/server/assets/
 !/packages/server/scripts/
+!/packages/server/public/
 !/packages/server/src/
 !/packages/server/package.json
 !/packages/server/yarn.lock

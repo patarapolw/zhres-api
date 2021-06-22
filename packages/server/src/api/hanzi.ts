@@ -26,12 +26,29 @@ const hanziRouter: FastifyPluginAsync = async (f) => {
   {
     const sBody = S.shape({
       entry: S.string()
+    }).examples({
+      entry: '你'
     })
 
     const sResponse = S.shape({
       sub: S.list(S.string()),
       sup: S.list(S.string()),
       var: S.list(S.string())
+    }).examples({
+      "sub": [
+        "尔",
+        "亻"
+      ],
+      "sup": [
+        "您"
+      ],
+      "var": [
+        "您",
+        "祢",
+        "伱",
+        "妳",
+        "袮"
+      ]
     })
 
     f.post<{
@@ -64,6 +81,8 @@ const hanziRouter: FastifyPluginAsync = async (f) => {
   {
     const sBody = S.shape({
       entry: S.string()
+    }).examples({
+      entry: '你'
     })
 
     const sResponse = S.shape({
@@ -72,6 +91,18 @@ const hanziRouter: FastifyPluginAsync = async (f) => {
         reading: S.list(S.string()),
         english: S.list(S.string())
       }))
+    }).examples({
+      "result": [
+        {
+          "entry": "你",
+          "reading": [
+            "ni3"
+          ],
+          "english": [
+            "you"
+          ]
+        }
+      ]
     })
 
     f.post<{
@@ -118,6 +149,9 @@ const hanziRouter: FastifyPluginAsync = async (f) => {
     const sResponse = S.shape({
       result: S.string(),
       level: sLevel
+    }).examples({
+      "result": "何",
+      "level": 10
     })
 
     f.post<{

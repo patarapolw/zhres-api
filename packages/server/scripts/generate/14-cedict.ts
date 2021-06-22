@@ -167,7 +167,8 @@ export async function populate(
           lots.set(entry[0], {
             entry: JSON.stringify(entry),
             reading: p.reading,
-            english: JSON.stringify(english)
+            english: JSON.stringify(english),
+            frequency: undefined
           })
 
           py.send(entry[0])
@@ -178,7 +179,7 @@ export async function populate(
       })
 
       db.transaction(() => {
-        for (const v in lots.values()) {
+        for (const v of lots.values()) {
           stmt.run(v)
         }
       })()
