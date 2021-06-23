@@ -5,4 +5,4 @@
 - Vocabularies via <https://www.mdbg.net>
 - Sentences via <https://tatoeba.org>
 
-See <https://zhres.herokuapp.com/api/doc>.
+See <https://zhres.herokuapp.com>.
