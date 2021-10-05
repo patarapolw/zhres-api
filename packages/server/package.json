@@ -28,7 +28,7 @@
     "chinese-to-pinyin": "^1.3.1",
     "fastify": "^3.18.0",
     "fastify-cors": "^6.0.1",
-    "fastify-static": "^4.2.2",
+    "fastify-static": "^4.2.4",
     "fastify-swagger": "^4.8.0",
     "js-yaml": "^4.1.0",
     "jsonschema-definer": "^1.3.2",
